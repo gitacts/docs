@@ -1,0 +1,159 @@
+direction: down
+workflow: Development {
+  style: {
+    shadow: true
+    fill: lightgreen
+  }
+  commit: "\$ git commit" {
+    width: 120
+    height: 50
+  }
+  push: "\$ git push" {
+    width: 120
+    height: 50
+  }
+
+  commit -> push
+}
+
+platforms: CI/CD Providers {
+  style: {
+    shadow: true
+  }
+  github: "" {
+#    shape: image
+    icon: https://icons.terrastruct.com/dev/github.svg
+  }
+  gitlab: "" {
+    icon: https://icons.terrastruct.com/dev/gitlab.svg
+  }
+  #  runner: Job Runner {
+  #    width: 500
+  #    height: 40
+  #  }
+}
+
+workflow.push -> platforms: remote
+app: GitActs App
+
+platforms -> app -> backend.api
+
+backend: Backend {
+  style: {
+    shadow: true
+    fill: "#ddd"
+    border-radius: 20
+    stroke-width: 4
+  }
+  events: Event Bus {
+    width: 200
+    height: 40
+    fill: "coral"
+  }
+  gateway: Gateway {
+    api: REST API {
+      height: 50
+    }
+    sockets: WebSockets {
+      height: 50
+    }
+  }
+  persistence: Database {
+    shape: cylinder
+    width: 125
+    fill: "#0F75E0"
+  }
+  rbac_api: RBAC API {
+    width: 150
+    height: 75
+    fill: "magenta"
+  }
+  events_api: Events API {
+    width: 150
+    height: 75
+    fill: "#00ff80"
+  }
+  events <- api: {
+    stroke-dash: 3
+    animated: true
+  }
+
+  events <-> rbac_api
+  events <-> events_api
+  rbac_api <-> persistence
+  events_api <-> persistence
+}
+
+apps: Apps {
+  browser: Browser {
+    width: 100
+    height: 50
+    fill: "#c0c0c0"
+    link: "https://google.com"
+  }
+  desktop: Desktop {
+    width: 100
+    height: 50
+    fill: "#c0c0c0"
+    link: "https://google.com"
+  }
+  mobile: Mobile {
+    width: 100
+    height: 50
+    fill: "#c0c0c0"
+    link: "https://google.com"
+  }
+}
+apps.mobile -> backend.gateway.api
+apps.desktop -> backend.gateway.api
+apps.browser -> backend.gateway.api
+apps.browser -> backend.gateway.sockets
+apps.desktop -> backend.gateway.sockets
+apps.mobile -> backend.gateway.sockets
+
+backend.gateway.api -> backend.events
+backend.gateway.sockets -> backend.events
+
+integrations: Integrations {
+  link: "https://google.com"
+  http: CUSTOM HTTP POST {
+    width: 200
+    height: 50
+    link: "https://google.com"
+  }
+  zapier: Zapier.com {
+    width: 200
+    height: 50
+    link: "https://google.com"
+  }
+}
+
+login: Login Providers {
+  github: GitHub {
+    shape: circle
+    height: 100
+    fill: lightblue
+    link: "https://google.com"
+  }
+  gitlab: Gitlab {
+    shape: circle
+    height: 100
+    fill: lightblue
+    link: "https://google.com"
+  }
+  google: Google {
+    shape: circle
+    height: 100
+    fill: lightblue
+    link: "https://google.com"
+  }
+  email: Password {
+    shape: circle
+    height: 100
+    fill: "#c0c0c0"
+    link: "https://google.com"
+  }
+}
+
+backend.rbac_api -> login
+integrations <- backend.events_api
